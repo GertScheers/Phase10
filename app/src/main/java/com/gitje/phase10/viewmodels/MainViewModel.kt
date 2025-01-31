@@ -3,9 +3,12 @@ package com.gitje.phase10.viewmodels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.gitje.phase10.models.Player
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
-    private var players = mutableListOf<Player>()
+    private val _players = MutableStateFlow<List<Player>>(emptyList())
+    val players: StateFlow<List<Player>> = _players
 
     val stages = listOf(
         "AAA + BBB",
@@ -21,14 +24,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     )
 
     fun setPlayers(playerNames: List<String>) {
-        players = mutableListOf()
-        playerNames.reversed().forEach {
-            if (it.isEmpty()) return
-            players.add(Player(it))
+        val newPlayers = mutableListOf<Player>()
+        playerNames.forEach {
+            if(it.isEmpty()) return@forEach
+            newPlayers.add(Player(it))
         }
-    }
-
-    fun getPlayers(): List<Player> {
-        return players
+        _players.value = newPlayers
     }
 }

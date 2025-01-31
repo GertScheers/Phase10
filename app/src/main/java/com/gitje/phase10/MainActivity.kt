@@ -3,50 +3,66 @@ package com.gitje.phase10
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.gitje.phase10.models.Player
 import com.gitje.phase10.ui.composables.PlayerItem
 import com.gitje.phase10.ui.composables.ScoringItem
 import com.gitje.phase10.ui.theme.Phase10Theme
 import com.gitje.phase10.viewmodels.MainViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import org.koin.androidx.compose.BuildConfig
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.KoinApplication
-import org.koin.dsl.koinApplication
-import org.koin.dsl.module
+import timber.log.Timber
+import timber.log.Timber.Forest.plant
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        plant(Timber.DebugTree())
+
         setContent {
             Phase10Theme {
                 // A surface container using the 'background' color from the theme
@@ -73,13 +89,30 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         composable<GameScreen> {
-                            GameScreen(viewModel.getPlayers(), viewModel.stages) {
-                                navController.navigate(route = ScoringScreen)
+                            val players by viewModel.players.collectAsState()
+                            GameScreen(players, viewModel.stages) {
+                                navController.navigate(route = ScoringScreen(it))
                             }
                         }
-                        composable<ScoringScreen> { 
-                            ScoringScreen(players = viewModel.getPlayers()) {
-                                navController.navigate(route = GameScreen)
+                        composable<ScoringScreen> {
+                            val players by viewModel.players.collectAsState()
+                            val route: ScoringScreen = it.toRoute()
+                            val playersForScoring = players.toMutableList()
+                            playersForScoring.removeIf { p -> p.key == route.playerKey }
+
+                            ScoringScreen(players = playersForScoring)
+                            {
+                                players.firstOrNull { p -> p.key == route.playerKey }
+                                    ?.let { player -> player.stage++ }
+                                if (players.any { pl -> pl.stage == 10 }) {
+                                    navController.navigate(route = WinnerScreen)
+                                } else navController.navigate(route = GameScreen)
+                            }
+                        }
+                        composable<WinnerScreen> {
+                            val players by viewModel.players.collectAsState()
+                            WinnerScreen(players) {
+                                navController.navigate(route = HomeScreen)
                             }
                         }
                     }
@@ -99,7 +132,10 @@ object PlayerEntryScreen
 object GameScreen
 
 @Serializable
-object ScoringScreen
+data class ScoringScreen(val playerKey: String)
+
+@Serializable
+object WinnerScreen
 
 @Composable
 fun HomeScreen(startNewGame: () -> Unit, gameRules: () -> Unit) {
@@ -140,28 +176,46 @@ fun PlayerEntryScreen(startGame: (List<String>) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        TextField(value = player1, onValueChange = { player1 = it }, label = { Text("Player 1") })
-        TextField(value = player2, onValueChange = { player2 = it }, label = { Text("Player 2") })
+        TextField(
+            value = player1,
+            onValueChange = { player1 = it },
+            label = { Text("Player 1") },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+        )
+        TextField(
+            value = player2,
+            onValueChange = { player2 = it },
+            label = { Text("Player 2") },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+        )
         if (player1.isNotEmpty() && player2.isNotEmpty())
             TextField(
                 value = player3,
                 onValueChange = { player3 = it },
-                label = { Text("Player 3") })
+                label = { Text("Player 3") },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            )
         if (player3.isNotEmpty())
             TextField(
                 value = player4,
                 onValueChange = { player4 = it },
-                label = { Text("Player 4") })
+                label = { Text("Player 4") },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            )
         if (player4.isNotEmpty())
             TextField(
                 value = player5,
                 onValueChange = { player5 = it },
-                label = { Text("Player 5") })
+                label = { Text("Player 5") },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            )
         if (player5.isNotEmpty())
             TextField(
                 value = player6,
                 onValueChange = { player6 = it },
-                label = { Text("Player 6") })
+                label = { Text("Player 6") },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
+            )
 
         Button(onClick = {
             startGame(listOf(player1, player2, player3, player4, player5, player6))
@@ -203,26 +257,51 @@ fun GameScreenPreview() {
 
 @Composable
 fun ScoringScreen(players: List<Player>, backToGameScreen: () -> Unit) {
-    val pagerState = rememberPagerState(0, pageCount = { players.size })
+    //val pagerState = rememberPagerState(0, pageCount = { players.size })
     var confirmResults by remember { mutableStateOf(false) }
 
-    Column(horizontalAlignment = Alignment.End) {
-        HorizontalPager(
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        /*HorizontalPager(
             state = pagerState,
             Modifier
                 .fillMaxWidth()
                 .padding(10.dp),
             contentPadding = PaddingValues(start = 80.dp, end = 50.dp)
         ) {
-            ScoringItem(player = players[it], confirmResults)
+            ScoringItem(player = players[it], confirmResults) { points, clearedStage ->
+                Timber.i("TEST TEST: index: $it stage: ${players[it].stage}")
+                players[it].points += points
+                if (clearedStage && players[it].stage < 10)
+                    players[it].stage++
+                if (it == players.size - 1)
+                    backToGameScreen()
+            }
+        }*/
+        LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.weight(1f)) {
+            itemsIndexed(players) { index, player ->
+                ScoringItem(
+                    player = player,
+                    confirmResults,
+                    modifier = Modifier.padding(10.dp)
+                ) { points, clearedStage ->
+                    Timber.i("TEST TEST: index: stage: ${player.stage}")
+                    player.points += points
+                    if (clearedStage && player.stage < 10)
+                        player.stage++
+                    if (index == players.size - 1)
+                        backToGameScreen()
+                }
+            }
         }
 
-        if (pagerState.currentPage == players.size - 1)
-            Button(onClick = {
+        Button(
+            onClick = {
                 confirmResults = true
-            }) {
-                Text(text = "Confirm")
-            }
+            },
+            modifier = Modifier.padding(top = 20.dp)
+        ) {
+            Text(text = "Confirm")
+        }
     }
 }
 
@@ -237,6 +316,78 @@ fun ScoringScreenPreview() {
                 Player("PLAYER 3"),
                 Player("PLAYER 4")
             )
+        ) { }
+    }
+}
+
+@Composable
+fun WinnerScreen(players: List<Player>, backToStart: () -> Unit) {
+    val winner = players.filter { p -> p.stage == 10 }
+        .minBy { p -> p.points }
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceAround,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Surface(
+                shape = CircleShape,
+                modifier = Modifier
+                    .size(150.dp),
+                border = BorderStroke(5.dp, Color.Black)
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        "10",
+                        fontSize = TextUnit(48f, type = TextUnitType.Sp),
+                        modifier = Modifier.align(
+                            Alignment.Center
+                        )
+                    )
+                }
+            }
+            Text(text = winner.name.uppercase(), textAlign = TextAlign.Center, fontSize = TextUnit(48f, TextUnitType.Sp))
+        }
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            var position = 2
+            players.sortedWith(compareBy({ it.stage }, { -it.points })).forEach { p ->
+                if (p.key == winner.key) return@forEach
+                Text(text = "$position. ${p.name}: Stage: ${p.stage} Points: ${p.points}", fontSize = TextUnit(24f, TextUnitType.Sp))
+                position++
+            }
+        }
+        Button(onClick = { backToStart() }) {
+            Text(text = "Play again")
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WinnerScreenPreview() {
+    Phase10Theme {
+        WinnerScreen(
+            listOf(Player("Player 1"), Player("Player 2").apply {
+                this.stage = 6
+                this.points = 220
+            },
+                Player("Player 3").apply {
+                    this.stage = 9
+                    this.points = 320
+                },
+                Player("Player 4").apply {
+                    this.stage = 6
+                    this.points = 200
+                },
+                Player("Player 5").apply {
+                    this.stage = 10
+                    this.points = 200
+                })
         ) { }
     }
 }

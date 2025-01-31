@@ -3,10 +3,7 @@ package com.gitje.phase10.ui.composables
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Checkbox
@@ -28,18 +25,18 @@ import com.gitje.phase10.models.Player
 import com.gitje.phase10.ui.theme.Phase10Theme
 
 @Composable
-fun ScoringItem(player: Player, confirmResults: Boolean) {
+fun ScoringItem(player: Player, confirmResults: Boolean, modifier: Modifier = Modifier, saveItem: (Int, Boolean) -> Unit) {
     var penaltyPoints by remember { mutableStateOf("") }
     var clearedStage by remember { mutableStateOf(false) }
+    var resultsSaved by remember { mutableStateOf(false) }
 
-    if(confirmResults) {
-        player.points += penaltyPoints.toInt()
-        if(clearedStage)
-            player.stage++
+    if(confirmResults && !resultsSaved) {
+        resultsSaved = true
+        saveItem(penaltyPoints.trim().ifEmpty { "0" }.toInt(), clearedStage)
     }
 
     OutlinedCard(
-        modifier = Modifier.size(height = 300.dp, width = 200.dp),
+        modifier = modifier.size(height = 300.dp, width = 200.dp),
         shape = RoundedCornerShape(20.dp)
     ) {
         Column(
@@ -69,6 +66,6 @@ fun ScoringItem(player: Player, confirmResults: Boolean) {
 @Composable
 fun ScoringItemPreview() {
     Phase10Theme {
-        ScoringItem(Player("HELLO"), false)
+        ScoringItem(Player("HELLO"), false) { _, _ -> }
     }
 }
