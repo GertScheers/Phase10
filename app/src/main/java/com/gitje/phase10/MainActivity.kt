@@ -3,11 +3,9 @@ package com.gitje.phase10
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,11 +13,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -36,23 +31,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
-import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.compose.Phase10Theme
 import com.gitje.phase10.models.Player
 import com.gitje.phase10.ui.composables.PlayerItem
 import com.gitje.phase10.ui.composables.ScoringItem
-import com.gitje.phase10.ui.theme.Phase10Theme
+import com.gitje.phase10.ui.composables.animatedBorder
 import com.gitje.phase10.viewmodels.MainViewModel
 import kotlinx.serialization.Serializable
-import org.koin.androidx.compose.BuildConfig
 import org.koin.androidx.compose.koinViewModel
 import timber.log.Timber
 import timber.log.Timber.Forest.plant
@@ -219,7 +214,7 @@ fun PlayerEntryScreen(startGame: (List<String>) -> Unit) {
 
         Button(onClick = {
             startGame(listOf(player1, player2, player3, player4, player5, player6))
-        }, modifier = Modifier.padding(top = 20.dp)) {
+        }, modifier = Modifier.padding(top = dimensionResource(id = com.intuit.sdp.R.dimen._15sdp))) {
             Text("Start!")
         }
     }
@@ -235,7 +230,7 @@ fun PlayerEntryScreenPreview() {
 
 @Composable
 fun GameScreen(players: List<Player>, stages: List<String>, finished: (String) -> Unit) {
-    LazyColumn(Modifier.fillMaxWidth()) {
+    LazyColumn(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center) {
         items(players) {
             PlayerItem(player = it, stages) { winnerKey ->
                 finished(winnerKey)
@@ -261,28 +256,12 @@ fun ScoringScreen(players: List<Player>, backToGameScreen: () -> Unit) {
     var confirmResults by remember { mutableStateOf(false) }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        /*HorizontalPager(
-            state = pagerState,
-            Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            contentPadding = PaddingValues(start = 80.dp, end = 50.dp)
-        ) {
-            ScoringItem(player = players[it], confirmResults) { points, clearedStage ->
-                Timber.i("TEST TEST: index: $it stage: ${players[it].stage}")
-                players[it].points += points
-                if (clearedStage && players[it].stage < 10)
-                    players[it].stage++
-                if (it == players.size - 1)
-                    backToGameScreen()
-            }
-        }*/
         LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.weight(1f)) {
             itemsIndexed(players) { index, player ->
                 ScoringItem(
                     player = player,
                     confirmResults,
-                    modifier = Modifier.padding(10.dp)
+                    modifier = Modifier.padding(dimensionResource(id = com.intuit.sdp.R.dimen._7sdp))
                 ) { points, clearedStage ->
                     Timber.i("TEST TEST: index: stage: ${player.stage}")
                     player.points += points
@@ -298,7 +277,7 @@ fun ScoringScreen(players: List<Player>, backToGameScreen: () -> Unit) {
             onClick = {
                 confirmResults = true
             },
-            modifier = Modifier.padding(top = 20.dp)
+            modifier = Modifier.padding(top = dimensionResource(id = com.intuit.sdp.R.dimen._20sdp))
         ) {
             Text(text = "Confirm")
         }
@@ -334,8 +313,21 @@ fun WinnerScreen(players: List<Player>, backToStart: () -> Unit) {
             Surface(
                 shape = CircleShape,
                 modifier = Modifier
-                    .size(150.dp),
-                border = BorderStroke(5.dp, Color.Black)
+                    .size(dimensionResource(id = com.intuit.sdp.R.dimen._120sdp))
+                    .animatedBorder(
+                        listOf(
+                            Color.Black,
+                            Color.Yellow,
+                            Color.White,
+                            Color.Green,
+                            Color.Blue,
+                            Color.Red
+                        ),
+                        Color.White,
+                        CircleShape,
+                        dimensionResource(id = com.intuit.sdp.R.dimen._2sdp),
+                        animationDurationInMillis = 3000
+                    ),
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     Text(
@@ -355,7 +347,7 @@ fun WinnerScreen(players: List<Player>, backToStart: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             var position = 2
-            players.sortedWith(compareBy({ it.stage }, { -it.points })).forEach { p ->
+            players.sortedWith(compareBy({ -it.stage }, { it.points })).forEach { p ->
                 if (p.key == winner.key) return@forEach
                 Text(text = "$position. ${p.name}: Stage: ${p.stage} Points: ${p.points}", fontSize = TextUnit(24f, TextUnitType.Sp))
                 position++

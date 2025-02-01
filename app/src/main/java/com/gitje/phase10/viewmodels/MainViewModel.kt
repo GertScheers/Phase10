@@ -11,16 +11,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val players: StateFlow<List<Player>> = _players
 
     val stages = listOf(
-        "AAA + BBB",
-        "AAA + ABCD",
-        "AAAA + ABCD",
+        "AAA+BBB",
+        "AAA+ABCD",
+        "AAAA+ABCD",
         "ABCDEFG",
         "ABCDEFGH",
         "ABCDEFGHI",
-        "AAAA + BBBB",
+        "AAAA+BBBB",
         "7 color",
-        "AAAAA + BB",
-        "AAAAA + BBB"
+        "AAAAA+BB",
+        "AAAAA+BBB"
     )
 
     fun setPlayers(playerNames: List<String>) {
