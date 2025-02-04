@@ -5,7 +5,7 @@
     <string name="btn_start">Start!</string>
     <string name="btn_confirm">Confirm</string>
     <string name="btn_restart">Play again</string>
-    <string name="btn_finish">Finish</string>
+    <string name="btn_finish">Cleared</string>
     <string name="label_points">Points:</string>
     <string name="label_player_number">Player %1$s</string>
     <string name="label_penalty_points">Penalty points</string>
