@@ -22,12 +22,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.compose.Phase10Theme
 import com.gitje.phase10.R
+import com.gitje.phase10.ui.theme.Phase10Theme
 import com.gitje.phase10.models.Player
 
 @Composable
@@ -53,10 +54,12 @@ fun ScoringItem(player: Player, confirmResults: Boolean, modifier: Modifier = Mo
             verticalArrangement = Arrangement.SpaceAround
         ) {
             Text(text = player.name, textAlign = TextAlign.Center, fontSize = scalableFontSize(id = com.intuit.ssp.R.dimen._18ssp))
-            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable {
-                clearedStage = !clearedStage
-            }.focusable(false)) {
-                Text("Stage cleared?")
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
+                .clickable {
+                    clearedStage = !clearedStage
+                }
+                .focusable(false)) {
+                Text(stringResource(id = R.string.question_stage_cleared))
                 Checkbox(
                     checked = clearedStage,
                     onCheckedChange = { clearedStage = it },
@@ -67,7 +70,7 @@ fun ScoringItem(player: Player, confirmResults: Boolean, modifier: Modifier = Mo
                 value = penaltyPoints,
                 onValueChange = { penaltyPoints = it },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-                label = { Text("Penalty points") })
+                label = { Text(stringResource(id = R.string.label_penalty_points)) })
         }
     }
 }

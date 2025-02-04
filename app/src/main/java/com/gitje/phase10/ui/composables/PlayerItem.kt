@@ -18,18 +18,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.compose.Phase10Theme
+import com.gitje.phase10.R
+import com.gitje.phase10.ui.theme.Phase10Theme
 import com.gitje.phase10.models.Player
 
 @Composable
 fun PlayerItem(player: Player, stages: List<String>, finished: (String) -> Unit) {
     OutlinedCard(
         shape = RectangleShape,
-        elevation = CardDefaults.outlinedCardElevation(dimensionResource(id = com.intuit.sdp.R.dimen._3sdp)),
+        elevation = CardDefaults.outlinedCardElevation(dimensionResource(id = com.intuit.sdp.R.dimen._10sdp)),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(dimensionResource(id = com.intuit.sdp.R.dimen._3sdp))
+            .padding(dimensionResource(id = com.intuit.sdp.R.dimen._6sdp))
     ) {
         Row(
             modifier = Modifier
@@ -40,11 +42,11 @@ fun PlayerItem(player: Player, stages: List<String>, finished: (String) -> Unit)
         ) {
             Text(text = player.name)
             Row {
-                Text(text = "Points:")
+                Text(text = stringResource(id = R.string.label_points))
                 Text(text = player.points.toString())
             }
             Button(onClick = { finished(player.key) }) {
-                Text(text = "Finish")
+                Text(text = stringResource(id = R.string.btn_finish))
             }
         }
         Row(
@@ -55,7 +57,7 @@ fun PlayerItem(player: Player, stages: List<String>, finished: (String) -> Unit)
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "${player.stage}. ")
-            if (player.stage == 7) {
+            if (player.stage-1 == 7) {
                 Row {
                     ColorCard(Color.Red, modifier = Modifier.padding(dimensionResource(id = com.intuit.sdp.R.dimen._2sdp)))
                     ColorCard(Color.Red, modifier = Modifier.padding(dimensionResource(id = com.intuit.sdp.R.dimen._2sdp)))
@@ -67,7 +69,7 @@ fun PlayerItem(player: Player, stages: List<String>, finished: (String) -> Unit)
             } else {
                 stages[player.stage - 1].forEach {
                     if (it == '+')
-                        Text(text = "+")
+                        Text(text = " + ")
                     else
                         CardText(character = it, Modifier.padding(dimensionResource(id = com.intuit.sdp.R.dimen._2sdp)))
                 }
@@ -81,7 +83,8 @@ fun CardText(character: Char, modifier: Modifier = Modifier) {
     Text(
         text = character.toString(), modifier = modifier
             .background(Color.White)
-            .padding(dimensionResource(id = com.intuit.sdp.R.dimen._2sdp))
+            .padding(dimensionResource(id = com.intuit.sdp.R.dimen._2sdp)),
+        color = Color.Black
     )
 }
 
@@ -89,8 +92,8 @@ fun CardText(character: Char, modifier: Modifier = Modifier) {
 fun ColorCard(color: Color, modifier: Modifier = Modifier) {
     Box(modifier = modifier
         .background(color)
-        .width(dimensionResource(id = com.intuit.sdp.R.dimen._7sdp))
-        .height(dimensionResource(id = com.intuit.sdp.R.dimen._12sdp)))
+        .width(dimensionResource(id = com.intuit.sdp.R.dimen._10sdp))
+        .height(dimensionResource(id = com.intuit.sdp.R.dimen._20sdp)))
 }
 
 @Preview(showBackground = true)

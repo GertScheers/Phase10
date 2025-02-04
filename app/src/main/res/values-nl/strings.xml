@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="btn_new_game">Nieuw spel</string>
+    <string name="btn_game_rules">Spelregels</string>
+    <string name="btn_start">Start!</string>
+    <string name="btn_confirm">Bevestig</string>
+    <string name="btn_restart">Opnieuw spelen</string>
+    <string name="btn_finish">Uit</string>
+    <string name="label_points">Punten:</string>
+    <string name="label_player_number">Speler %1$s</string>
+    <string name="label_penalty_points">Strafpunten</string>
+    <string name="question_stage_cleared">Phase gehaald?</string>
+    <string name="label_player_score">%1$s. %2$s: Phase: %3$s Punten: %4$s</string>
+</resources>

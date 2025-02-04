@@ -1,3 +1,14 @@
 <resources>
-    <string name="app_name">Phase10</string>
+    <string name="app_name" translatable="false">Phase10</string>
+    <string name="btn_new_game">New Game</string>
+    <string name="btn_game_rules">Game rules</string>
+    <string name="btn_start">Start!</string>
+    <string name="btn_confirm">Confirm</string>
+    <string name="btn_restart">Play again</string>
+    <string name="btn_finish">Finish</string>
+    <string name="label_points">Points:</string>
+    <string name="label_player_number">Player %1$s</string>
+    <string name="label_penalty_points">Penalty points</string>
+    <string name="question_stage_cleared">Phase cleared?</string>
+    <string name="label_player_score">%1$s. %2$s: Phase: %3$s Points: %4$s</string>
 </resources>

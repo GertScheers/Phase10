@@ -3,6 +3,7 @@ package com.gitje.phase10
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,7 +32,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,7 +45,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.example.compose.Phase10Theme
+import com.gitje.phase10.ui.theme.Phase10Theme
 import com.gitje.phase10.models.Player
 import com.gitje.phase10.ui.composables.PlayerItem
 import com.gitje.phase10.ui.composables.ScoringItem
@@ -99,7 +103,7 @@ class MainActivity : ComponentActivity() {
                             {
                                 players.firstOrNull { p -> p.key == route.playerKey }
                                     ?.let { player -> player.stage++ }
-                                if (players.any { pl -> pl.stage == 10 }) {
+                                if (players.any { pl -> pl.stage > 10 }) {
                                     navController.navigate(route = WinnerScreen)
                                 } else navController.navigate(route = GameScreen)
                             }
@@ -135,17 +139,38 @@ object WinnerScreen
 @Composable
 fun HomeScreen(startNewGame: () -> Unit, gameRules: () -> Unit) {
     Column(
-        Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Button(onClick = { startNewGame() }) {
-            Text("New Game")
+        Image(
+            painter = painterResource(id = R.drawable.home_header),
+            contentDescription = "logo",
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Column {
+            Button(onClick = { startNewGame() }, modifier = Modifier.padding(vertical = dimensionResource(
+                id = com.intuit.sdp.R.dimen._5sdp
+            ))) {
+                Text(stringResource(id = R.string.btn_new_game))
+            }
+
+            Button(onClick = { gameRules() }, modifier = Modifier.padding(vertical = dimensionResource(
+                id = com.intuit.sdp.R.dimen._5sdp
+            ))) {
+                Text(stringResource(id = R.string.btn_game_rules))
+            }
         }
 
-        Button(onClick = { gameRules() }) {
-            Text("Game rules")
-        }
+        Image(
+            painter = painterResource(id = R.drawable.home_footer),
+            contentDescription = "logo",
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
@@ -174,48 +199,51 @@ fun PlayerEntryScreen(startGame: (List<String>) -> Unit) {
         TextField(
             value = player1,
             onValueChange = { player1 = it },
-            label = { Text("Player 1") },
+            label = { Text(stringResource(id = R.string.label_player_number, "1")) },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
         TextField(
             value = player2,
             onValueChange = { player2 = it },
-            label = { Text("Player 2") },
+            label = { Text(stringResource(id = R.string.label_player_number, "2")) },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
         if (player1.isNotEmpty() && player2.isNotEmpty())
             TextField(
                 value = player3,
                 onValueChange = { player3 = it },
-                label = { Text("Player 3") },
+                label = { Text(stringResource(id = R.string.label_player_number, "3")) },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
             )
         if (player3.isNotEmpty())
             TextField(
                 value = player4,
                 onValueChange = { player4 = it },
-                label = { Text("Player 4") },
+                label = { Text(stringResource(id = R.string.label_player_number, "4")) },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
             )
         if (player4.isNotEmpty())
             TextField(
                 value = player5,
                 onValueChange = { player5 = it },
-                label = { Text("Player 5") },
+                label = { Text(stringResource(id = R.string.label_player_number, "5")) },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
             )
         if (player5.isNotEmpty())
             TextField(
                 value = player6,
                 onValueChange = { player6 = it },
-                label = { Text("Player 6") },
+                label = { Text(stringResource(id = R.string.label_player_number, "6")) },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
             )
 
-        Button(onClick = {
-            startGame(listOf(player1, player2, player3, player4, player5, player6))
-        }, modifier = Modifier.padding(top = dimensionResource(id = com.intuit.sdp.R.dimen._15sdp))) {
-            Text("Start!")
+        Button(
+            onClick = {
+                startGame(listOf(player1, player2, player3, player4, player5, player6))
+            },
+            modifier = Modifier.padding(top = dimensionResource(id = com.intuit.sdp.R.dimen._15sdp))
+        ) {
+            Text(stringResource(id = R.string.btn_start))
         }
     }
 }
@@ -230,7 +258,10 @@ fun PlayerEntryScreenPreview() {
 
 @Composable
 fun GameScreen(players: List<Player>, stages: List<String>, finished: (String) -> Unit) {
-    LazyColumn(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center) {
+    LazyColumn(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = dimensionResource(id = com.intuit.sdp.R.dimen._3sdp)), verticalArrangement = Arrangement.Center) {
         items(players) {
             PlayerItem(player = it, stages) { winnerKey ->
                 finished(winnerKey)
@@ -263,7 +294,6 @@ fun ScoringScreen(players: List<Player>, backToGameScreen: () -> Unit) {
                     confirmResults,
                     modifier = Modifier.padding(dimensionResource(id = com.intuit.sdp.R.dimen._7sdp))
                 ) { points, clearedStage ->
-                    Timber.i("TEST TEST: index: stage: ${player.stage}")
                     player.points += points
                     if (clearedStage && player.stage < 10)
                         player.stage++
@@ -279,7 +309,7 @@ fun ScoringScreen(players: List<Player>, backToGameScreen: () -> Unit) {
             },
             modifier = Modifier.padding(top = dimensionResource(id = com.intuit.sdp.R.dimen._20sdp))
         ) {
-            Text(text = "Confirm")
+            Text(text = stringResource(id = R.string.btn_confirm))
         }
     }
 }
@@ -301,7 +331,7 @@ fun ScoringScreenPreview() {
 
 @Composable
 fun WinnerScreen(players: List<Player>, backToStart: () -> Unit) {
-    val winner = players.filter { p -> p.stage == 10 }
+    val winner = players.filter { p -> p.stage == 11 }
         .minBy { p -> p.points }
 
     Column(
@@ -339,7 +369,11 @@ fun WinnerScreen(players: List<Player>, backToStart: () -> Unit) {
                     )
                 }
             }
-            Text(text = winner.name.uppercase(), textAlign = TextAlign.Center, fontSize = TextUnit(48f, TextUnitType.Sp))
+            Text(
+                text = winner.name.uppercase(),
+                textAlign = TextAlign.Center,
+                fontSize = TextUnit(48f, TextUnitType.Sp)
+            )
         }
 
         Column(
@@ -349,12 +383,15 @@ fun WinnerScreen(players: List<Player>, backToStart: () -> Unit) {
             var position = 2
             players.sortedWith(compareBy({ -it.stage }, { it.points })).forEach { p ->
                 if (p.key == winner.key) return@forEach
-                Text(text = "$position. ${p.name}: Stage: ${p.stage} Points: ${p.points}", fontSize = TextUnit(24f, TextUnitType.Sp))
+                Text(
+                    text = stringResource(id = R.string.label_player_score, position, p.name, p.stage, p.points),
+                    fontSize = TextUnit(24f, TextUnitType.Sp)
+                )
                 position++
             }
         }
         Button(onClick = { backToStart() }) {
-            Text(text = "Play again")
+            Text(text = stringResource(id = R.string.btn_restart))
         }
     }
 }
